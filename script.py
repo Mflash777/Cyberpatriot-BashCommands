@@ -5,7 +5,6 @@
 # Windows 11 Quick Win Script (PowerShell)
 windows11_script = """# CyberPatriot 18 - Windows 11 Quick Wins Script
 # Run as Administrator
-# Created for GHP Computer Science Portfolio
 
 Write-Host "=== CyberPatriot 18 - Windows 11 Quick Wins ===" -ForegroundColor Cyan
 Write-Host "Starting automated hardening..." -ForegroundColor Green
