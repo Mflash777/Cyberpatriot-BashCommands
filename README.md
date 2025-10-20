@@ -208,33 +208,6 @@ This project demonstrates:
 - **Compliance**: Meeting security baselines (CIS, NIST)
 - **DevSecOps**: Infrastructure as Code for security
 
-## 🎓 GHP Computer Science Connection
-
-This project aligns with GHP Computer Science core tenets:
-
-1. **Program Construction**: Structured, maintainable automation code
-2. **Cybersecurity**: Applied security hardening techniques
-3. **Computer Systems**: OS-level configuration and management
-4. **Problem Solving**: Optimizing for speed and effectiveness
-
-### Learning Outcomes
-
-Through this project, I learned:
-- How Windows and Linux security models differ
-- The importance of prioritization in time-limited scenarios
-- PowerShell and Bash automation techniques
-- Real-world cybersecurity practices used in enterprise environments
-- How to balance automation with manual verification
-
-## 📖 Usage for GHP Portfolio
-
-This repository serves as a demonstration project for my GHP Computer Science application, showing:
-
-- **Practical Application**: Real competition environment
-- **Technical Depth**: System administration and security
-- **Problem-Solving**: Optimization under time constraints
-- **Documentation**: Professional code documentation
-- **Impact**: Tangible results (competition points)
 
 ## 🔐 Security Considerations
 
