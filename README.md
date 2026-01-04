@@ -4,7 +4,7 @@
 
 ## 📋 Overview
 
-This repository contains automated hardening scripts for CyberPatriot 18 competition, designed to maximize points in the first 15 minutes of competition. The scripts are optimized for:
+This repository contains automated  hardening scripts for CyberPatriot 18 competition, designed to maximize points in the first 15 minutes of competition. The scripts are optimized for:
 
 - **Windows 11** (Desktop)
 - **Windows Server 2019** (Server Environment)
