@@ -8,7 +8,7 @@ $LogDir = "$env:USERPROFILE\Desktop\CP18_Server_Logs"
 New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 Start-Transcript -Path "$LogDir\WindowsServer_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
 
-# 1. USER MANAGEMENT
+# 1. USER
 Write-Host "`n[1/12] Managing Users..." -ForegroundColor Yellow
 
 net user Guest /active:no
