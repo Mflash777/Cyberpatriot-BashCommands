@@ -278,12 +278,4 @@ CyberPatriot Team Commander | FRC Robotics Programmer
 - Python Drone Automation
 - AI-Powered Applications
 
-## 📧 Contact
 
-For questions about this project or GHP application:
-- GitHub: [See repository]
-- Purpose: Educational demonstration for GHP Computer Science portfolio
-
----
-
-**Note**: This project was created specifically for the Governor's Honors Program Computer Science application to demonstrate practical cybersecurity knowledge, automation skills, and real-world problem-solving in a competitive environment.
