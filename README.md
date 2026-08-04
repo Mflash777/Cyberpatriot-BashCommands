@@ -257,19 +257,6 @@ This project demonstrates:
 - Follow all CyberPatriot rules during competition
 - Don't share scripts with other teams
 
-## 👨‍💻 Author
-
-**Moulik**  
-High School Student | Georgia  
-CyberPatriot Team Commander | FRC Robotics Programmer  
-
-**Background**:
-- Founded school CyberPatriot club, reached Platinum Division
-- FRC Robotics Team programmer (Java)
-- Cyber camp graduate (Windows, Linux, Cisco, Python drones)
-- Stellar Explorers aerospace coding team
-
-**GHP Interests**: Artificial Intelligence, Cybersecurity, Computer Systems
 
 ## 🔗 Related Projects
 
