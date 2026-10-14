@@ -1,566 +1,371 @@
-# CyberPatriot 18 Quick Wins - Setup & Usage Guide
+# CyberPatriot Quick Wins: Setup, Usage and Verification Guide
 
-## 📦 Repository Structure
+By Moulik Suhag. Educational use on authorized CyberPatriot practice images only. The competition README always overrides these scripts: authorized users and required services come first.
+
+## Contents
+
+1. [Repository structure](#1-repository-structure)
+2. [What has been tested, and what you must test yourself](#2-testing-status)
+3. [Before you run anything](#3-before-you-run-anything)
+4. [Running the scripts](#4-running-the-scripts)
+5. [Verify that every change worked](#5-verify-that-every-change-worked)
+6. [Test log template](#6-test-log-template)
+7. [Competition-day timeline](#7-competition-day-timeline)
+8. [Customizing the scripts](#8-customizing-the-scripts)
+9. [Understanding the output and logs](#9-understanding-the-output-and-logs)
+10. [Common mistakes](#10-common-mistakes)
+11. [Troubleshooting](#11-troubleshooting)
+12. [Limitations](#12-limitations)
+
+---
+
+## 1. Repository structure
 
 ```
-cyberpatriot-quickwins/
-├── README.md                      # Main documentation
-├── windows11_quickwins.ps1        # Windows 11 automation script
-├── windowsserver_quickwins.ps1    # Windows Server automation script
-├── linux_mint_quickwins.sh        # Linux Mint 21.3 automation script
-├── GHP_Video_Script.md            # Video production script
-└── docs/
-    ├── SETUP.md                   # This file
-    ├── COMPETITION_STRATEGY.md    # Competition tips
-    └── TROUBLESHOOTING.md         # Common issues
+Cyberpatriot-BashCommands/
+├── README.md              # Overview and quick start
+├── SETUP-GUIDE.md         # This file
+├── windows11-wins.ps1     # Windows 11 (10 steps)
+├── server-wins.ps1        # Windows Server 2019 (12 steps)
+└── linux-mint-wins.sh     # Linux Mint 21.3 (15 steps, optional --fast)
 ```
 
 ---
 
-## 🚀 Installation Instructions
+## 2. Testing status
 
-### For Windows 11 / Windows Server
+Being honest about this is part of the project. Here is what each level of testing means.
 
-#### Step 1: Download Scripts
-1. Download `windows11_quickwins.ps1` (or `windowsserver_quickwins.ps1`)
-2. Save to Desktop or easily accessible location
-3. **Do NOT run directly** - follow steps below first
+| Check | Linux script | Windows scripts |
+| --- | --- | --- |
+| Syntax check (`bash -n`) | Passed | Not applicable |
+| Editing logic tested on copies of sample config files (login.defs, PAM, sshd_config, sysctl) | Done, including running the edits twice to confirm nothing is duplicated | Not applicable |
+| Reviewed line by line for known failure modes (see below) | Done | Done |
+| Run end to end on a real practice VM | **You must do this** (Section 6) | **You must do this** (Section 6) |
 
-#### Step 2: Enable Script Execution
-PowerShell scripts are disabled by default for security. To run temporarily:
+The Windows scripts could not be executed on Windows while they were being fixed, so treat them as reviewed but unproven until you complete the test log in Section 6 on your own VMs. Nothing in this guide claims a point total, because points depend on the image.
 
-1. **Right-click PowerShell** and select **"Run as Administrator"**
-2. Run this command:
+### Problems found and fixed during review
+
+| Script | Original problem | Fix |
+| --- | --- | --- |
+| Linux | Account lockout line named `pam_tally2.so` even if the module was missing, which can lock every user out | Only added if the module file exists; placed before the `pam_unix` line; lockout counter reset added to `common-account` |
+| Linux | `dpkg-reconfigure unattended-upgrades` opens an interactive prompt and freezes the script | Writes `/etc/apt/apt.conf.d/20auto-upgrades` directly |
+| Linux | Package check matched by prefix, so `nmap` would also match unrelated libraries | Exact match with `dpkg-query` |
+| Linux | Settings appended every run, so config files grew | Blocks wrapped in `BEGIN`/`END` markers and replaced on re-run |
+| Linux | SSH edits could break the server config | Old lines removed, new ones added first, `sshd -t` validates, backup restored if invalid |
+| Linux | Log folder landed in `/root` under `sudo` | Uses the real user's Desktop through `SUDO_USER` |
+| Linux | Backup overwritten on second run | A `.backup` is only created once, so you always keep the original |
+| Windows | Password complexity file saved in the wrong encoding, so `secedit` could not read it | Saved as Unicode |
+| Windows | Windows Update policy key often missing, so setting values failed | Key created first |
+| Windows | Same password set on every account without checking | Lists accounts and requires typing `YES` |
+| Windows | Script could disable the account you are logged in as | Skipped when logged in as `Administrator` |
+| Windows | Full Defender scan blocked the script | Quick scan runs as a background job |
+| Server | Crashed on domain controllers (no local users) | Guarded with a command check |
+
+---
+
+## 3. Before you run anything
+
+### 3.1 Build a safe test setup
+
+1. Install **VMware Workstation Player** (free for personal use) or VMware Workstation.
+2. Get **practice images** from your coach or the official CyberPatriot training materials. Never test on a live competition image.
+3. Start the VM, let it fully boot, then take a snapshot: **VM → Snapshot → Take Snapshot**, named `Pre-Script Baseline`.
+4. Copy the script into the VM (drag and drop, a shared folder, or `git clone`).
+
+### 3.2 Read the README first
+
+Before any script runs:
+
+- [ ] Read the competition README completely.
+- [ ] Write down the **authorized users** and which are administrators.
+- [ ] Write down **required services** (FTP, SSH, web server, RDP and so on). Each is a step you may need to skip or edit.
+- [ ] Answer the **forensics questions first**. Scripts can change the evidence they ask about.
+
+---
+
+## 4. Running the scripts
+
+### 4.1 Windows 11 and Windows Server 2019
+
+1. Right-click PowerShell and choose **Run as Administrator**. (The scripts have `#Requires -RunAsAdministrator` and refuse to start otherwise.)
+2. Allow scripts for this window only:
+
    ```powershell
    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
    ```
-3. Type `Y` and press Enter when prompted
 
-**Note**: This only applies to the current PowerShell window. When you close it, the policy resets to default.
+   This lasts only until you close the window.
+3. Go to the folder with the script:
 
-#### Step 3: Navigate to Script
-```powershell
-cd Desktop  # Or wherever you saved the script
-```
+   ```powershell
+   cd $env:USERPROFILE\Desktop
+   ```
 
-#### Step 4: Run Script
-```powershell
-.\windows11_quickwins.ps1
-# OR
-.\windowsserver_quickwins.ps1
-```
+4. Run the one for your image:
 
-#### Step 5: Follow Prompts
-- The script will ask for a password to set for all users
-- **IMPORTANT**: Remember this password!
-- Enter a strong password meeting complexity requirements:
-  - At least 8 characters
-  - Contains uppercase and lowercase letters
-  - Contains numbers
-  - Contains special characters
-  - Example: `CyberP@triot2025!`
+   ```powershell
+   .\windows11-wins.ps1
+   # or
+   .\server-wins.ps1
+   ```
 
----
+5. At the prompt, the script **lists every enabled account**. Compare the list with the README. Type `YES` only if you want the same new password on all of them. Anything else skips password changes.
+6. If you type `YES`, choose a password that meets complexity rules (for example 14 or more characters on Server, with upper case, lower case, a number and a symbol), and write it down.
+7. Wait for the final lines (`Quick Wins Completed` and `Log saved to:`). The transcript is only fully written once the script finishes.
 
-### For Linux Mint 21.3
+### 4.2 Linux Mint 21.3
 
-#### Step 1: Download Script
-1. Download `linux_mint_quickwins.sh`
-2. Save to Desktop or home directory
-
-#### Step 2: Make Executable
-Open Terminal and run:
 ```bash
-cd Desktop  # Or wherever you saved the script
-chmod +x linux_mint_quickwins.sh
+cd ~/Desktop
+sudo bash linux-mint-wins.sh          # full run
+sudo bash linux-mint-wins.sh --fast   # skips the system upgrade and scanner install
 ```
 
-#### Step 3: Run with Sudo
-```bash
-sudo bash linux_mint_quickwins.sh
-```
+- Use `--fast` when you want results quickly. Steps 1 and 11 are the slow ones. You can run them later by hand.
+- Run it with `sudo bash`, not plain `bash`. The script exits with a message if it is not root.
+- When it finishes, **open a second terminal and run `sudo -k; sudo true`**. If sudo still works, the PAM edits did not lock you out. Do this before closing the first terminal.
 
-Enter your password when prompted.
+### 4.3 What the scripts deliberately do *not* do
 
-#### Step 4: Monitor Progress
-The script will output progress for each of 15 steps. Wait for completion message.
+| Not automated | Why |
+| --- | --- |
+| Deleting users | Only the README knows who is authorized. Removing a legitimate user costs points. |
+| Deleting media files and shares | Listed for review (`media_files.txt`, share audit). Files may be needed or part of a forensics question. |
+| Setting Linux user passwords | Done by hand with `passwd <user>` after reading the README. |
 
 ---
 
-## ⚙️ Pre-Competition Setup
+## 5. Verify that every change worked
 
-### Virtual Machine Preparation
+Do not trust the script's "done" messages alone. Each section below gives a command that proves a change actually took effect. Run them in the VM after the script finishes, then record the results in Section 6.
 
-#### 1. Install VMware Workstation Player (Free)
-- Download from: https://www.vmware.com/products/workstation-player.html
-- Install on your competition computer
-- Familiarize yourself with basic operations
+### 5.1 Linux Mint
 
-#### 2. Test on Practice Images
-**CRITICAL**: Never test scripts on competition images before competition starts!
+| Step | What it does | How to verify | Expected result |
+| --- | --- | --- | --- |
+| 1 | Updates packages | `apt list --upgradable 2>/dev/null \| wc -l` | Close to 1 (just the header) |
+| 2 | UFW firewall | `sudo ufw status verbose` | `Status: active`, `Default: deny (incoming), allow (outgoing)`, `Logging: on` |
+| 3 | Disables guest login | `cat /etc/lightdm/lightdm.conf.d/50-no-guest.conf` and `grep allow-guest /etc/lightdm/lightdm.conf` | `allow-guest=false` in both (second file may not exist) |
+| 4 | Password aging | `grep -E '^PASS_(MAX\|MIN\|WARN)' /etc/login.defs` | 90, 10, 7 |
+| 4 | Complexity and history | `grep -E 'pwquality\|pam_unix' /etc/pam.d/common-password` | `minlen=8 ucredit=-1 ...` on the pwquality line and `remember=5` on `pam_unix` |
+| 4 | Lockout | `grep tally /etc/pam.d/common-auth /etc/pam.d/common-account` | Lines present if `pam_tally2` exists, otherwise a message saying configure `pam_faillock` manually |
+| 5 | Root locked | `sudo passwd -S root` | Second field is `L` |
+| 6 | Permissions | `stat -c '%a %n' /etc/shadow /etc/passwd /etc/group` | `640`, `644`, `644` |
+| 7 | Services off | `systemctl is-enabled apache2 vsftpd smbd 2>&1` | `disabled` or `not-found` |
+| 8 | Packages removed | `dpkg -l john hydra nmap 2>&1 \| grep ^ii` | No output |
+| 9 | Media list | `cat ~/Desktop/CP18_Linux_Logs/media_files.txt` | A list (can be empty) |
+| 10 | Auto updates | `cat /etc/apt/apt.conf.d/20auto-upgrades` | Both lines set to `"1"` |
+| 11 | Scanners | `which clamscan rkhunter chkrootkit` | Three paths (not in `--fast` mode) |
+| 12 | Kernel settings | `sysctl net.ipv4.tcp_syncookies net.ipv4.conf.all.rp_filter` | Both `= 1` |
+| 13 | IPv6 off | `sysctl net.ipv6.conf.all.disable_ipv6` | `= 1` |
+| 14 | SSH | `sudo sshd -t && head -2 /etc/ssh/sshd_config` | No error and the first two lines say `PermitRootLogin no` and `PermitEmptyPasswords no` |
+| All | Re-run safety | Run the script a second time, then `grep -c 'BEGIN CP-QUICKWINS' /etc/sysctl.conf` | `1` (not 2) |
+| All | Backups exist | `ls /etc/*.backup /etc/pam.d/*.backup` | One `.backup` per edited file |
 
-Practice images are available from:
-- CyberPatriot Training Materials
-- Your coach
-- Previous year's practice rounds
+### 5.2 Windows 11
 
-#### 3. Create VM Snapshots
-Before testing scripts:
-```
-VM Menu → Snapshot → Take Snapshot
-```
-Name it: "Pre-Script Baseline"
+Run these in an elevated PowerShell.
 
-This lets you revert if something goes wrong.
+| Step | What it does | How to verify | Expected result |
+| --- | --- | --- | --- |
+| 1 | Guest and Administrator off | `net user Guest` and `net user Administrator` | `Account active   No` (unless you were logged in as Administrator) |
+| 2 | Password and lockout policy | `net accounts` | History 5, max age 90, min age 10, min length 8, lockout threshold 5, duration 30, window 30 |
+| 2 | Complexity | `secedit /export /cfg $env:TEMP\c.cfg; Select-String PasswordComplexity $env:TEMP\c.cfg` | `PasswordComplexity = 1` |
+| 3 | Firewall | `Get-NetFirewallProfile \| Select Name,Enabled` | `True` for Domain, Private, Public |
+| 4 | Windows Update | `Get-Service wuauserv` and `Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU` | Service startup Automatic; `NoAutoUpdate = 0`, `AUOptions = 4` |
+| 5 | Software removal | `Get-Package *Wireshark*,*Nmap*` | No results |
+| 6 | Services disabled | `Get-Service RemoteRegistry,SNMP,TlntSvr -ErrorAction SilentlyContinue \| Select Name,StartType` | `Disabled` |
+| 7 | Audit policy | `auditpol /get /category:*` | Success and Failure for the five categories set |
+| 8 | Remote Desktop | `(Get-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server').fDenyTSConnections` | `1` |
+| 9 | UAC | `(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System).EnableLUA` | `1` |
+| 10 | Defender | `Get-MpComputerStatus \| Select RealTimeProtectionEnabled,AntivirusSignatureLastUpdated` | Real-time `True`; signatures recent if the VM is online |
 
-#### 4. Test Script Execution
-1. Start practice VM
-2. Run script following instructions above
-3. Check Scoring Report (Desktop icon)
-4. Verify points gained
-5. Document any issues
+### 5.3 Windows Server 2019
 
-#### 5. Customize Scripts
-Based on typical competition images:
-- Identify common unauthorized users
-- Note typical prohibited software
-- List services that are usually disabled
-- **Update script variables accordingly**
+Use the Windows 11 table for password policy, firewall, updates, audit policy, Remote Desktop, UAC and Defender, with these differences:
 
----
+| Step | Difference | How to verify | Expected result |
+| --- | --- | --- | --- |
+| 2 | Stricter policy | `net accounts` | History 24, max age 60, min age 1, min length 14, lockout threshold 3 |
+| 4 | FTP service | `Get-Service ftpsvc -ErrorAction SilentlyContinue` | Missing or Disabled |
+| 5 | Telnet | `Get-WindowsFeature Telnet-Client` | `Available` (not Installed) |
+| 7 | Share audit | Read the console output | Lists non-admin shares for you to review |
+| 8 | Audit policy | `auditpol /get /category:*` | All categories set to Success and Failure |
+| 11 | SMB1 | `Get-SmbServerConfiguration \| Select EnableSMB1Protocol` | `False` |
 
-## 📋 Competition Day Checklist
+### 5.4 Confirm with the official scoring report
 
-### Before Competition Starts
+The CyberPatriot scoring report on the image is the final check. After the script finishes (give it a minute to refresh), check that:
 
-- [ ] **Read README thoroughly** (15-20 minutes before starting timer)
-- [ ] **Answer forensics questions** (do this FIRST - don't run scripts yet!)
-- [ ] **Identify authorized users** from README
-- [ ] **Check for required services** (FTP, SSH, Web Server, etc.)
-- [ ] **Review scoring criteria** if provided
-- [ ] **Have script ready** on Desktop of practice computer
-
-### Script Execution Timeline
-
-#### Minutes 0-2: Initial Assessment
-- [ ] Read README cover to cover
-- [ ] Note authorized users
-- [ ] Note required services
-- [ ] Answer forensics questions
-
-#### Minutes 2-3: Script Preparation
-- [ ] Copy appropriate script to VM Desktop
-- [ ] Open as Administrator/sudo
-- [ ] Verify script content matches image type
-
-#### Minutes 3-15: Run Script
-- [ ] Execute script
-- [ ] Monitor progress output
-- [ ] Note any errors
-- [ ] Wait for completion
-
-#### Minutes 15-20: Verification
-- [ ] Check Scoring Report for points
-- [ ] Review log files
-- [ ] Verify required services still running
-- [ ] Confirm authorized users intact
-
-#### Minutes 20-240: Manual Remediation
-- [ ] Review areas script couldn't automate
-- [ ] Check registry (Windows)
-- [ ] Review scheduled tasks
-- [ ] Examine startup programs
-- [ ] Audit file permissions
-- [ ] Check for hidden files
-- [ ] Review network shares
-- [ ] Analyze event logs
+- New points appeared for the settings you expected.
+- No **penalty** appeared (for example a required service stopped or an authorized user affected).
+- If a step did not score, use Section 5 to confirm the setting is actually in place. If it is, the image may not check that item.
 
 ---
 
-## 🔧 Script Customization
+## 6. Test log template
 
-### Windows Scripts
+Copy this table into a note and fill it in for each practice image you try. Keeping it in the repo (for example as `TEST-LOG.md`) is what lets you show, and not just claim, that the scripts work.
 
-#### Modify Authorized Users
-Find this section:
-```powershell
-# Remove unauthorized users (check README first!)
-# net user [UnauthorizedUser] /delete
-```
+| Field | Entry |
+| --- | --- |
+| Date | |
+| Script and version (commit) | |
+| Image name and OS | |
+| Snapshot reverted before test? | Yes / No |
+| Run time (start to finish) | |
+| Points before / after | |
+| Steps that worked (from Section 5) | |
+| Steps that failed or errored | |
+| Required service or user affected? | Yes / No (details) |
+| Re-run produced duplicates? | Yes / No |
+| Fix made afterwards | |
 
-Uncomment and customize:
+Suggested minimum before you rely on a script in a competition:
+
+- [ ] One clean run on a fresh snapshot, with Section 5 checks passed.
+- [ ] A second run on the same machine (proves it is safe to repeat).
+- [ ] A run on an image that **requires** a service (such as SSH or FTP) so you practice editing the script to keep it.
+- [ ] A run offline, to see which steps degrade gracefully.
+
+---
+
+## 7. Competition-day timeline
+
+| Time | Action |
+| --- | --- |
+| Before the timer | Read the README, list authorized users, list required services, note anything the script must skip |
+| 0 to 15 min | Answer the forensics questions **first** |
+| 15 to 20 min | Edit the script lists to match the README, take a VM snapshot, run the script |
+| 20 to 30 min | Run the Section 5 checks, open the scoring report, confirm no penalties |
+| 30 min to the end | Manual work: scheduled tasks, startup items, shares, file permissions, hidden or unauthorized files, event logs, user accounts and groups |
+
+---
+
+## 8. Customizing the scripts
+
+### 8.1 Windows
+
+Remove unauthorized users (only after reading the README), near the top of the user section:
+
 ```powershell
 net user "BadUser1" /delete
 net user "BadUser2" /delete
 ```
 
-#### Modify Prohibited Software List
-Find `$ProhibitedSoftware` array and add/remove:
+Prohibited software (`$ProhibitedSoftware` array in `windows11-wins.ps1`):
+
 ```powershell
 $ProhibitedSoftware = @(
     "*Wireshark*",
     "*BitTorrent*",
-    "*YourCustomSoftware*"  # Add your own
+    "*YourCustomSoftware*"
 )
 ```
 
-#### Modify Services to Disable
-Find `$ServicesToDisable` array:
-```powershell
-$ServicesToDisable = @(
-    "RemoteRegistry",
-    "Telnet",
-    "CustomService"  # Add your own
-)
-```
+Services to disable (`$ServicesToDisable`). **Delete any service the README says is required.**
 
-### Linux Scripts
+Skip Remote Desktop hardening if RDP is required by deleting or commenting out the `fDenyTSConnections` line.
 
-#### Modify Prohibited Packages
-Find `PROHIBITED_PACKAGES` array:
+### 8.2 Linux
+
+Edit the arrays near the top of steps 7 and 8:
+
 ```bash
-PROHIBITED_PACKAGES=(
-    "john"
-    "hydra"
-    "custom-package"  # Add your own
-)
+SERVICES_TO_DISABLE=( "telnet" "ftp" "vsftpd" "apache2" ... )
+PROHIBITED_PACKAGES=( "john" "hydra" "nmap" ... )
 ```
 
-#### Modify Services to Disable
-Find `SERVICES_TO_DISABLE` array:
-```bash
-SERVICES_TO_DISABLE=(
-    "telnet"
-    "ftp"
-    "custom-service"  # Add your own
-)
-```
+If the README requires a service (for example `apache2` or `vsftpd`), **remove it from `SERVICES_TO_DISABLE`**.
+
+Other lines you may need to change:
+
+- Step 12 sets `net.ipv4.icmp_echo_ignore_all = 1`, which makes the machine ignore ping. Remove that line if a scored check or a required service depends on ping.
+- Step 13 disables IPv6. Skip it if the README requires IPv6.
+- Step 14 only runs if SSH is installed, and does not turn off password logins. Add your own `PasswordAuthentication` rule if the README says to.
 
 ---
 
-## 📊 Understanding Script Output
+## 9. Understanding the output and logs
 
-### Windows Output
-```
-=== CyberPatriot 18 - Windows 11 Quick Wins ===
-Starting automated hardening...
+### Console colors (Windows)
 
-[1/10] Configuring Users and Passwords...
-User management completed
+- **Cyan**: section headers
+- **Yellow**: step in progress
+- **Green**: step done
+- **Red**: an error to read
 
-[2/10] Setting Password Policies...
-Password policies configured
-```
+### Logs
 
-**Color Coding**:
-- **Cyan**: Section headers
-- **Yellow**: Category in progress
-- **Green**: Category completed
-- **Red**: Errors (if any)
+| OS | Location | File |
+| --- | --- | --- |
+| Windows 11 | `Desktop\CP18_Logs\` | `Windows11_YYYYMMDD_HHMMSS.log` |
+| Windows Server | `Desktop\CP18_Server_Logs\` | `WindowsServer_YYYYMMDD_HHMMSS.log` |
+| Linux | `~/Desktop/CP18_Linux_Logs/` | `linux_mint_YYYYMMDD_HHMMSS.log` and `media_files.txt` |
 
-### Linux Output
-```
-=== CyberPatriot 18 - Linux Mint 21.3 Quick Wins ===
-[Sun Oct 19 21:15:00 2025] Starting CyberPatriot Quick Wins Script
-
-[1/15] Updating System Packages...
-System updated
-
-[2/15] Enabling UFW Firewall...
-Firewall enabled and configured
-```
-
-### Log Files
-
-#### Windows
-Location: `%USERPROFILE%\Desktop\CP18_Logs\`
-Files: `Windows11_YYYYMMDD_HHMMSS.log`
-
-#### Linux
-Location: `$HOME/Desktop/CP18_Linux_Logs/`
-Files: `linux_mint_YYYYMMDD_HHMMSS.log`
-
-**What's in logs**:
-- Timestamp of each action
-- Commands executed
-- Success/failure messages
-- Error details (if any)
+Logs hold every command's output and any errors, so they let you explain exactly what changed. On Linux, the original version of every edited file is kept next to it as `<name>.backup`.
 
 ---
 
-## 🎯 Maximizing Points
+## 10. Common mistakes
 
-### High-Impact Quick Wins (Do These First)
+**Critical**
 
-1. **Firewall** (3-5 points) - 30 seconds
-2. **Disable Guest** (3-5 points) - 30 seconds
-3. **Password Policies** (15-20 points) - 1 minute
-4. **Windows Updates** (5-10 points) - 1 minute
-5. **Disable Dangerous Services** (10-15 points) - 2 minutes
+- Running a script before reading the README (could stop a required service or break an authorized user).
+- Skipping the forensics questions (easy points that automation can erase).
+- Setting one password on all accounts without checking the account list.
+- Closing the Linux terminal before confirming `sudo` still works.
+- Not checking the scoring report for penalties.
 
-**Total**: 36-55 points in ~5 minutes
+**Recoverable**
 
-### Medium-Impact Actions (Do These Second)
-
-6. **User Management** (5-15 points) - 2 minutes
-7. **Remove Malware** (10-20 points) - 2 minutes
-8. **Audit Policies** (5-10 points) - 1 minute
-9. **UAC/Security Settings** (3-8 points) - 1 minute
-
-**Total**: 23-53 points in ~6 minutes
-
-### Low-Impact Actions (Time Permitting)
-
-10. **Security Tools Installation** (2-5 points) - 2 minutes
-11. **Advanced Registry** (5-10 points) - 3 minutes
-12. **Network Hardening** (3-7 points) - 2 minutes
+- Running the script twice. It is designed to be safe to repeat, but it wastes time.
+- Forgetting the password you set. Write it down.
+- Closing PowerShell before the script prints `Log saved to:`.
 
 ---
 
-## ⚠️ Common Mistakes to Avoid
+## 11. Troubleshooting
 
-### Critical Errors
+### Windows
 
-❌ **Running script before reading README**
-- Could delete required users
-- Could disable required services
-- Could break scoring system
+| Problem | Fix |
+| --- | --- |
+| "Running scripts is disabled" | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in the same window |
+| Script says it requires administrator | Close it and reopen PowerShell with **Run as Administrator** |
+| Windows Update service will not start | The script prints the error and continues. Start it manually later. |
+| Defender signature update skipped | The VM is offline. This is expected. |
+| `secedit` error | Re-run in an elevated window; check that the log folder is writable |
+| Penalty in the scoring report | Read the log, find the matching step, revert it, and re-read the README |
 
-❌ **Not answering forensics questions first**
-- Easy 12-24 points
-- May be harder to find answers after system changes
+### Linux
 
-❌ **Forgetting to verify authorized users**
-- Could delete legitimate users = penalty points
-- Could leave unauthorized users = missed points
-
-❌ **Disabling required services**
-- If README says "FTP server required", don't disable FTP!
-- Check EACH service before disabling
-
-❌ **Not checking Scoring Report**
-- Scripts might miss something
-- Manual verification essential
-
-### Recoverable Mistakes
-
-⚠️ **Running script multiple times**
-- Usually harmless (scripts are idempotent)
-- But wastes time
-
-⚠️ **Forgetting password you set**
-- Write it down!
-- Keep secure note nearby
-
-⚠️ **Closing PowerShell window too early**
-- Script creates logs before closing
-- Wait for "Stop-Transcript" completion
+| Problem | Fix |
+| --- | --- |
+| "Please run as root" | Use `sudo bash linux-mint-wins.sh` |
+| `apt` is locked | Wait for other update processes, close Software Manager, try again |
+| Steps 1, 10 or 11 fail | The image is offline or repositories are unreachable. The script keeps going. Run those steps later. |
+| "pam_tally2 not found" | Expected on newer images. Set up `pam_faillock` by hand if lockout is required. |
+| SSH: "sshd_config failed validation" | The script restored the backup. Check `sudo sshd -t` for the reason. |
+| Locked out of sudo | Revert the VM snapshot, or restore `/etc/pam.d/common-auth.backup` from a recovery shell |
+| UFW conflict | Run `sudo ufw disable` then re-run the script |
 
 ---
 
-## 🐛 Troubleshooting
+## 12. Limitations
 
-### Windows Issues
-
-#### "Execution of scripts is disabled on this system"
-**Solution**:
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-
-#### "Access Denied" errors
-**Solution**:
-- Right-click PowerShell → Run as Administrator
-- Confirm you're using admin account
-
-#### Script hangs on Windows Updates
-**Solution**:
-- Press Ctrl+C to skip that section
-- Continue manually after competition
-
-#### Scoring Report shows negative points
-**Solution**:
-- Check log for what was changed
-- Revert unauthorized changes
-- Re-read README for requirements
-
-### Linux Issues
-
-#### "Permission denied"
-**Solution**:
-```bash
-sudo bash linux_mint_quickwins.sh
-# NOT: bash linux_mint_quickwins.sh
-```
-
-#### "Command not found" errors
-**Solution**:
-- Some tools might not be installed
-- Script attempts to install them
-- If it fails, install manually: `sudo apt install [tool]`
-
-#### UFW firewall conflicts
-**Solution**:
-- Disable other firewalls first: `sudo ufw disable`
-- Then run script
-
-#### Package manager locked
-**Solution**:
-- Wait for any update processes to finish
-- Close Software Manager
-- Try again
+- Template lists (prohibited software, services) are generic and must be matched to each README.
+- Audit policy commands use English category names.
+- The scripts cover baseline settings. They will not catch image-specific vulnerabilities such as backdoors, hidden users, malicious scheduled tasks, insecure application configs or file permission traps.
+- The settings follow common hardening guidance (CIS-style baselines and NIST recommendations) but are not a full implementation of any benchmark.
+- The Windows scripts have not yet been run end to end by the author. Complete Section 6 before relying on them.
 
 ---
 
-## 📈 Performance Benchmarks
+## Ethics
 
-### Expected Script Performance
+Scripts must be written by team members, used on practice images only, and used in line with all CyberPatriot rules. Do not share competition-specific material with other teams.
 
-| Operating System | Execution Time | Expected Points | Failure Rate |
-|-----------------|----------------|-----------------|--------------|
-| Windows 11 | 12-15 minutes | 40-60 points | <5% |
-| Windows Server | 13-15 minutes | 45-70 points | <5% |
-| Linux Mint | 14-15 minutes | 50-75 points | <8% |
-
-**Note**: Points vary by image difficulty and configuration.
-
-### Time Breakdown
-
-**Windows 11**:
-- User Management: 2 min
-- Password Policies: 1 min
-- Firewall: 30 sec
-- Updates: 1 min
-- Software Removal: 2 min
-- Services: 1 min
-- Audit Policies: 1 min
-- Remote Desktop: 30 sec
-- UAC: 30 sec
-- Defender: 2 min
-- **Total: ~12 min**
-
-**Linux Mint**:
-- System Update: 3 min
-- Firewall: 30 sec
-- Guest Disable: 30 sec
-- Password Policies: 1 min
-- Root Lock: 30 sec
-- Permissions: 30 sec
-- Services: 2 min
-- Software Removal: 2 min
-- Media Files: 1 min
-- Auto Updates: 1 min
-- Security Tools: 2 min
-- Sysctl: 1 min
-- IPv6: 30 sec
-- SSH: 1 min
-- User Passwords: 2 min
-- **Total: ~14 min**
-
----
-
-## 🎓 Educational Resources
-
-### Learn More About Script Components
-
-#### PowerShell Resources
-- Microsoft PowerShell Documentation
-- PowerShell Gallery
-- "Learn PowerShell in a Month of Lunches" (book)
-
-#### Bash Resources
-- Linux Command Line Basics
-- Advanced Bash Scripting Guide
-- Ubuntu Community Help Wiki
-
-#### Cybersecurity Concepts
-- CIS Benchmarks (Windows, Linux)
-- NIST Cybersecurity Framework
-- SANS Critical Security Controls
-
-#### CyberPatriot Resources
-- Official CyberPatriot Training Materials
-- AFA CyberPatriot Resources
-- Previous competition guides
-
----
-
-## 🏆 Advanced Optimization
-
-### For Experienced Teams
-
-#### Parallel Execution
-Run multiple scripts simultaneously on different images.
-
-#### Custom Modules
-Break scripts into modular functions:
-```powershell
-function Set-PasswordPolicies { ... }
-function Remove-UnauthorizedUsers { ... }
-function Enable-AuditPolicies { ... }
-```
-
-#### Configuration Files
-Store image-specific settings in JSON/XML:
-```json
-{
-  "authorized_users": ["alice", "bob"],
-  "required_services": ["ssh", "apache2"],
-  "prohibited_software": ["wireshark", "nmap"]
-}
-```
-
-#### Automated Testing
-Create test harness for script validation:
-```powershell
-Invoke-Pester -Script .\Tests\ScriptValidation.Tests.ps1
-```
-
----
-
-## 📞 Getting Help
-
-### During Competition
-- **Read the README again** - answer is usually there
-- **Check scoring report** - shows what's working
-- **Review logs** - shows what script did
-- **Ask coach** - they can clarify rules
-- **Don't panic** - manual remediation still works
-
-### After Competition
-- **GitHub Issues** - report bugs or suggest features
-- **Team Discussions** - share learnings
-- **Coach Feedback** - get improvement suggestions
-
----
-
-## ✅ Final Checklist Before Competition
-
-- [ ] Scripts tested on practice images
-- [ ] VM snapshots created
-- [ ] VMware Workstation installed and configured
-- [ ] Script customizations completed
-- [ ] Team members trained on script usage
-- [ ] Backup plan if scripts fail
-- [ ] Competition rules reviewed
-- [ ] Forensics question strategy discussed
-- [ ] Time management plan created
-- [ ] All team members know their roles
-
----
-
-## 🎉 Good Luck!
-
-Remember:
-- **Scripts are tools, not magic** - verify everything
-- **READ THE README** - cannot emphasize this enough
-- **Forensics first** - easy points before automation
-- **Stay calm** - you have 4 hours
-- **Have fun** - cybersecurity is awesome!
-
-**Most importantly**: These scripts represent one approach to CyberPatriot. The best teams combine automation with deep understanding, critical thinking, and manual verification.
-
----
-
-*Created by Moulik for GHP Computer Science Portfolio Project*
-*CyberPatriot Team Commander | Platinum Division*
+*Created by Moulik Suhag for the Georgia Governor's Honors Program computer science portfolio.*
