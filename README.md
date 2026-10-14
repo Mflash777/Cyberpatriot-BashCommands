@@ -1,268 +1,118 @@
-# CyberPatriot 18 Quick Wins Automation Scripts
+# CyberPatriot Quick Wins Automation Scripts
 
-**Created by Moulik for GHP Computer Science Portfolio**
+Automated first-15-minutes hardening scripts for CyberPatriot practice images, written by Moulik Suhag.
 
-## 📋 Overview
+| Script | Target image |
+| --- | --- |
+| `windows11-wins.ps1` | Windows 11 |
+| `server-wins.ps1` | Windows Server 2019 |
+| `linux-mint-wins.sh` | Linux Mint 21.3 |
 
-This repository contains automated  hardening scripts for CyberPatriot 18 competition, designed to maximize points in the first 15 minutes of competition. The scripts are optimized for:
+> **Educational use only.** Run these on authorized CyberPatriot practice images. The competition README always overrides the scripts: authorized users and required services come first.
 
-- **Windows 11** (Desktop)
-- **Windows Server 2019** (Server Environment)
-- **Linux Mint 21.3** (Linux Desktop)
+## Why this exists
 
-## 🎯 Purpose
+In CyberPatriot, a team gets several vulnerable virtual machines and four hours. The first 10-15 minutes are the most valuable, and they are also where manual work causes the most mistakes: forgotten settings, inconsistent steps, and lost points. These scripts turn the repeatable baseline steps into one command so the team can spend its time on the harder, image-specific vulnerabilities.
 
-These scripts demonstrate practical cybersecurity automation by implementing industry-standard security hardening techniques. They showcase:
+## Quick start
 
-- **System Administration**: Automated user management, password policies, and service configuration
-- **Cybersecurity**: Implementing defense-in-depth strategies through multiple security layers
-- **Scripting**: PowerShell and Bash automation for rapid deployment
-- **Competition Strategy**: Maximizing efficiency through prioritized vulnerability remediation
+### Windows 11 / Windows Server
 
-## 🚀 Quick Start
+1. Right-click PowerShell and choose **Run as Administrator**.
+2. Allow scripts for this window only:
 
-### Windows 11 & Windows Server
-
-1. **Right-click PowerShell** and select "Run as Administrator"
-2. Enable script execution:
    ```powershell
    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
    ```
-3. Run the appropriate script:
+
+3. Run the script for your image:
+
    ```powershell
-   .\windows11_quickwins.ps1
-   # OR
-   .\windowsserver_quickwins.ps1
+   .\windows11-wins.ps1
+   # or
+   .\server-wins.ps1
    ```
+
+The script lists every enabled account and asks you to type `YES` before it changes any passwords.
 
 ### Linux Mint 21.3
 
-1. **Make script executable**:
-   ```bash
-   chmod +x linux_mint_quickwins.sh
-   ```
-2. **Run with sudo**:
-   ```bash
-   sudo bash linux_mint_quickwins.sh
-   ```
+```bash
+sudo bash linux-mint-wins.sh
+# or, to skip the two slowest steps (full upgrade, installing scanners):
+sudo bash linux-mint-wins.sh --fast
+```
 
-## 📊 Features & Points Breakdown
+## What each script does
 
-### Windows 11 Script (10 Categories)
+### Windows 11 (10 steps)
 
-| Category | Points Impact | Time |
-|----------|---------------|------|
-| User Management | High | ~2 min |
-| Password Policies | Critical | ~1 min |
-| Windows Firewall | High | ~30 sec |
-| Windows Updates | High | ~1 min |
-| Remove Malware | Variable | ~2 min |
-| Disable Services | Medium | ~1 min |
-| Audit Policies | Medium | ~1 min |
-| Remote Desktop | Low | ~30 sec |
-| UAC Configuration | Medium | ~30 sec |
-| Windows Defender | High | ~2 min |
+1. Disable Guest and the built-in Administrator (never the account you are logged in as); optionally set new passwords
+2. Password and lockout policy (`net accounts`) plus password complexity (`secedit`)
+3. Enable Windows Defender Firewall on all profiles
+4. Enable the Windows Update service and automatic update policy
+5. Uninstall a list of prohibited software
+6. Disable legacy services (RemoteRegistry, Telnet, FTP, SNMP)
+7. Enable audit policies
+8. Disable Remote Desktop
+9. Enable UAC
+10. Turn on Defender real-time protection, update signatures, start a background quick scan
 
-**Estimated Total Time**: 12-15 minutes  
-**Expected Points**: 40-60 points (varies by image)
+### Windows Server (12 steps)
 
-### Windows Server Script (12 Categories)
+Same core as Windows 11, plus: stricter password policy (14 characters, 24 remembered), FTP and Telnet removal, SMB1 disabled, a share audit that lists shares for review, and a guard for domain controllers (which have no local users).
 
-| Category | Points Impact | Time |
-|----------|---------------|------|
-| User Management | High | ~2 min |
-| Password Policies | Critical | ~1 min |
-| Firewall | High | ~30 sec |
-| Disable FTP | High | ~30 sec |
-| Disable Telnet | High | ~30 sec |
-| Windows Updates | High | ~1 min |
-| Remove Shares | Variable | ~2 min |
-| Audit Policies | Medium | ~1 min |
-| Remote Desktop | Low | ~30 sec |
-| UAC | Medium | ~30 sec |
-| Disable Features | Medium | ~1 min |
-| Windows Defender | High | ~2 min |
+### Linux Mint (15 steps)
 
-**Estimated Total Time**: 13-15 minutes  
-**Expected Points**: 45-70 points (varies by image)
+1. System update (skipped with `--fast`)
+2. UFW firewall: default deny incoming, logging on
+3. Disable the guest login (LightDM)
+4. Password aging, complexity (`pam_pwquality`), history, and account lockout
+5. Lock the root account
+6. Correct permissions on `/etc/shadow`, `/etc/passwd`, `/etc/group`
+7. Stop and disable risky services
+8. Purge a list of prohibited packages
+9. List media files for review (not deleted)
+10. Enable automatic updates
+11. Install ClamAV, rkhunter, chkrootkit (skipped with `--fast`)
+12. Network hardening with `sysctl` (spoofing protection, redirects, SYN cookies)
+13. Disable IPv6
+14. Harden SSH (validated with `sshd -t` before restarting)
+15. Remind you to set user passwords manually
 
-### Linux Mint Script (15 Categories)
+## Design choices
 
-| Category | Points Impact | Time |
-|----------|---------------|------|
-| System Updates | Critical | ~3 min |
-| UFW Firewall | High | ~30 sec |
-| Disable Guest | High | ~30 sec |
-| Password Policies | Critical | ~1 min |
-| Lock Root | High | ~30 sec |
-| File Permissions | Medium | ~30 sec |
-| Disable Services | High | ~2 min |
-| Remove Malware | Variable | ~2 min |
-| Find Media Files | Variable | ~1 min |
-| Auto Updates | High | ~1 min |
-| Security Tools | Medium | ~2 min |
-| Sysctl Config | Medium | ~1 min |
-| Disable IPv6 | Low | ~30 sec |
-| Secure SSH | Medium | ~1 min |
-| User Passwords | High | ~2 min |
+- **Prioritized.** Quick, high-value settings first; slower or riskier ones later.
+- **Human in the loop.** The scripts list users, shares, and media files for review instead of deleting them, and they ask before changing passwords. Only the README knows who is authorized.
+- **Safe to re-run.** Config edits are guarded or replaced rather than stacked.
+- **Fails safe.** The Linux script backs up each file it edits (`*.backup`), checks that a PAM module exists before referencing it, and validates the SSH config before restarting the service.
+- **Logged.** Every run writes a timestamped log to the Desktop (`CP18_Logs`, `CP18_Server_Logs`, `CP18_Linux_Logs`).
 
-**Estimated Total Time**: 14-15 minutes  
-**Expected Points**: 50-75 points (varies by image)
+The settings follow common hardening guidance (CIS-style baselines and NIST recommendations) but are not a full implementation of any benchmark.
 
-## ⚠️ Important Notes
+## Before and after you run a script
 
-### Before Running Scripts
+**Before:** read the competition README, answer forensics questions, note the authorized users, and note any required services (FTP, SSH, web server, RDP). Take a VM snapshot.
 
-1. **READ THE README**: Always read the competition README first
-2. **Answer Forensics Questions**: Do this BEFORE running scripts (12-24 points each)
-3. **Check Authorized Users**: Verify which users should exist
-4. **Required Services**: Check if specific services (FTP, SSH, etc.) are required
-5. **Backup**: Scripts create logs but don't backup system state
+**After:** check the scoring report, review the log, then continue manually with scheduled tasks, startup items, shares, registry, and file permissions. Verify that no authorized user or required service was affected.
 
-### Critical Competition Rules
+## Known limitations
 
-- **NO INTERNET TOOLS**: These scripts don't download external tools
-- **MANUAL VERIFICATION**: Always verify script results
-- **README COMPLIANCE**: Scripts are templates - customize based on README
-- **AUTHORIZED USE**: Only use on practice images or with permission
+- Template values (prohibited software, services to disable) are generic. Edit the lists at the top of each section to match the README.
+- Audit policy commands use English category names.
+- Linux steps 1, 10, and 11 need access to the package repositories.
+- Scripts do not replace manual analysis and will not catch image-specific vulnerabilities.
 
-### After Running Scripts
+## Roadmap
 
-1. Check the **Scoring Report** (Desktop icon)
-2. Review the **log files** created on Desktop
-3. Answer any **remaining forensics questions**
-4. **Manually verify**:
-   - Unauthorized users removed
-   - Required services still running
-   - Prohibited software deleted
-   - Media files removed
-5. Continue with **deep analysis**:
-   - Registry checks
-   - Scheduled tasks
-   - Startup programs
-   - Network shares
-   - File permissions
+- Network-level security checks
+- Automated vulnerability scanning
+- A dashboard that shows an image's security status in real time
 
-## 🔍 Script Architecture
+## Ethics
 
-### Design Philosophy
+Scripts must be written by team members, used on practice images only, and used in line with all CyberPatriot rules. Do not share competition-specific material with other teams.
 
-These scripts follow a **prioritized remediation strategy**:
+## Technologies
 
-1. **Quick Wins First** (1-5 minutes):
-   - Enable firewall
-   - Disable dangerous services
-   - Set password policies
-
-2. **High-Impact Security** (5-10 minutes):
-   - User management
-   - Remove malware
-   - Enable updates
-
-3. **Comprehensive Hardening** (10-15 minutes):
-   - Audit policies
-   - System configuration
-   - Security tools
-
-### Logging & Transparency
-
-All scripts create detailed logs:
-- **Windows**: `%USERPROFILE%\Desktop\CP18_Logs\`
-- **Linux**: `$HOME/Desktop/CP18_Linux_Logs/`
-
-Logs include:
-- Timestamp of each action
-- Commands executed
-- Success/failure status
-- Files modified
-
-## 🛠️ Technologies Used
-
-- **PowerShell 5.1+**: Windows automation
-- **Bash 4.0+**: Linux automation
-- **Windows Security APIs**: Local security policy, user management
-- **Linux PAM**: Password authentication modules
-- **Systemd/Service Management**: Service control
-- **UFW**: Uncomplicated Firewall (Linux)
-- **Windows Defender**: Antimalware scanning
-
-## 📚 Educational Value
-
-This project demonstrates:
-
-### Computer Science Concepts
-- **Automation**: Reducing manual tasks through scripting
-- **Error Handling**: Graceful failures and logging
-- **Systems Programming**: Interacting with OS APIs
-- **Security Engineering**: Defense-in-depth implementation
-
-### Cybersecurity Principles
-- **Least Privilege**: Disabling unnecessary access
-- **Defense in Depth**: Multiple security layers
-- **Hardening**: Reducing attack surface
-- **Audit & Compliance**: Logging and monitoring
-
-### Real-World Applications
-- **Enterprise Security**: Scripts similar to production hardening
-- **Incident Response**: Rapid remediation techniques
-- **Compliance**: Meeting security baselines (CIS, NIST)
-- **DevSecOps**: Infrastructure as Code for security
-
-
-## 🔐 Security Considerations
-
-### What These Scripts DO
-
-✅ Implement CIS-aligned security hardening  
-✅ Follow Microsoft and Linux security best practices  
-✅ Create audit trails through logging  
-✅ Enable protective security features  
-✅ Remove common attack vectors  
-
-### What These Scripts DON'T Do
-
-❌ Guarantee 100% security  
-❌ Replace manual security analysis  
-❌ Work on every possible image configuration  
-❌ Bypass competition detection mechanisms  
-❌ Download or install external tools during competition  
-
-## 🏆 Competition Strategy
-
-### First 15 Minutes Plan
-
-1. **[0-2 min]** Read README, answer forensics questions
-2. **[2-3 min]** Run appropriate quick wins script
-3. **[3-5 min]** Monitor script execution, check logs
-4. **[5-7 min]** Verify scoring report for points
-5. **[7-10 min]** Manual user/software verification
-6. **[10-15 min]** Address script-missed items
-
-### After Quick Wins (Remaining Time)
-
-- Deep dive into services
-- Registry analysis (Windows)
-- Cron jobs and scheduled tasks
-- File permission audits
-- Network configuration review
-- Application-specific hardening
-
-## 📜 License & Ethics
-
-**Educational Use Only**: These scripts are for learning and authorized CyberPatriot practice images only.
-
-**Competition Ethics**: 
-- Scripts must be written by team members
-- Use only on practice images during learning
-- Follow all CyberPatriot rules during competition
-- Don't share scripts with other teams
-
-
-## 🔗 Related Projects
-
-- CyberPatriot Training Tool Development
-- Autonomous Robotics Programming (FRC, FLL)
-- Python Drone Automation
-- AI-Powered Applications
-
-
+PowerShell 5.1+, Bash, Windows Defender and Windows Firewall, `secedit` and `auditpol`, Linux PAM, `sysctl`, UFW, systemd.

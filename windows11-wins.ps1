@@ -1,14 +1,21 @@
-# CyberPatriot 18 - Windows 11 Quick Wins Script
-# Run as Administrator
-# Created for GHP Computer Science Portfolio
+#Requires -RunAsAdministrator
+# CyberPatriot Quick Wins - Windows 11
+#
+# Usage (elevated PowerShell):
+#   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+#   .\windows11-wins.ps1
+#
+# Educational use on authorized CyberPatriot practice images only.
+# Read the competition README FIRST: its authorized users and required services
+# always override what this script does.
 
-Write-Host "=== CyberPatriot 18 - Windows 11 Quick Wins ===" -ForegroundColor Cyan
+Write-Host "=== CyberPatriot - Windows 11 Quick Wins ===" -ForegroundColor Cyan
 Write-Host "Starting automated hardening..." -ForegroundColor Green
 
 # Create log directory
-$LogDir = "$env:USERPROFILE\Desktop\CP18_Logs"
+$LogDir = Join-Path $env:USERPROFILE 'Desktop\CP18_Logs'
 New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
-Start-Transcript -Path "$LogDir\Windows11_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+Start-Transcript -Path (Join-Path $LogDir ("Windows11_{0}.log" -f (Get-Date -Format 'yyyyMMdd_HHmmss')))
 
 # 1. USERS AND PASSWORDS - High Priority
 Write-Host "`n[1/10] Configuring Users and Passwords..." -ForegroundColor Yellow
@@ -16,12 +23,30 @@ Write-Host "`n[1/10] Configuring Users and Passwords..." -ForegroundColor Yellow
 # Disable Guest Account
 net user Guest /active:no
 
-# Disable Administrator Account (if not needed)
-net user Administrator /active:no
+# Disable the built-in Administrator (never the account you are logged in with)
+if ($env:USERNAME -ne 'Administrator') {
+    net user Administrator /active:no
+} else {
+    Write-Host "Logged in as Administrator - leaving it enabled." -ForegroundColor DarkYellow
+}
 
-# Set password for all users (change as needed per README)
-$password = Read-Host "Enter secure password for all users" -AsSecureString
-Get-LocalUser | Where-Object {$_.Enabled -eq $true} | Set-LocalUser -Password $password
+# Show every enabled account and ask before changing any passwords
+$accounts = Get-LocalUser | Where-Object { $_.Enabled }
+Write-Host "Enabled local accounts:"
+$accounts | ForEach-Object { Write-Host "  - $($_.Name)" }
+$confirm = Read-Host "Set the SAME new password on all of these accounts? Type YES to continue (check the README first)"
+if ($confirm -eq 'YES') {
+    $password = Read-Host "Enter secure password for all users" -AsSecureString
+    foreach ($account in $accounts) {
+        try {
+            Set-LocalUser -Name $account.Name -Password $password -ErrorAction Stop
+        } catch {
+            Write-Host "Could not change $($account.Name): $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+} else {
+    Write-Host "Skipped password changes." -ForegroundColor DarkYellow
+}
 
 # Remove unauthorized users (check README first!)
 # net user [UnauthorizedUser] /delete
@@ -31,15 +56,17 @@ Write-Host "User management completed" -ForegroundColor Green
 # 2. PASSWORD POLICIES - Critical Points
 Write-Host "`n[2/10] Setting Password Policies..." -ForegroundColor Yellow
 
-secedit /export /cfg $LogDir\secpol.cfg | Out-Null
-(Get-Content $LogDir\secpol.cfg) -replace 'PasswordHistorySize = \d+', 'PasswordHistorySize = 5' `
-    -replace 'MaximumPasswordAge = \d+', 'MaximumPasswordAge = 90' `
-    -replace 'MinimumPasswordAge = \d+', 'MinimumPasswordAge = 10' `
-    -replace 'MinimumPasswordLength = \d+', 'MinimumPasswordLength = 8' `
-    -replace 'PasswordComplexity = \d', 'PasswordComplexity = 1' `
-    -replace 'LockoutBadCount = \d+', 'LockoutBadCount = 5' | Set-Content $LogDir\secpol_new.cfg
-secedit /configure /db c:\windows\security\local.sdb /cfg $LogDir\secpol_new.cfg /areas SECURITYPOLICY | Out-Null
-Remove-Item $LogDir\secpol.cfg, $LogDir\secpol_new.cfg -Force
+# 'net accounts' sets history, aging, length and lockout correctly
+net accounts /uniquepw:5 /maxpwage:90 /minpwage:10 /minpwlen:8 /lockoutthreshold:5 /lockoutduration:30 /lockoutwindow:30
+
+# Complexity is only available through the security policy. secedit needs the file
+# saved as Unicode, otherwise /configure can fail to read it.
+$cfg = Join-Path $LogDir 'secpol.cfg'
+$cfgNew = Join-Path $LogDir 'secpol_new.cfg'
+secedit /export /cfg "$cfg" | Out-Null
+(Get-Content $cfg) -replace 'PasswordComplexity\s*=\s*\d', 'PasswordComplexity = 1' | Set-Content -Path $cfgNew -Encoding Unicode
+secedit /configure /db "$env:windir\security\local.sdb" /cfg "$cfgNew" /areas SECURITYPOLICY | Out-Null
+Remove-Item $cfg, $cfgNew -Force -ErrorAction SilentlyContinue
 
 Write-Host "Password policies configured" -ForegroundColor Green
 
@@ -56,11 +83,13 @@ Write-Host "`n[4/10] Enabling Automatic Updates..." -ForegroundColor Yellow
 
 # Enable Windows Update service
 Set-Service -Name wuauserv -StartupType Automatic
-Start-Service -Name wuauserv
+try { Start-Service -Name wuauserv -ErrorAction Stop } catch { Write-Host "wuauserv: $($_.Exception.Message)" }
 
-# Configure automatic updates via registry
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoUpdate" -Value 0 -Force
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUOptions" -Value 4 -Force
+# The policy key often does not exist yet, so create it first
+$au = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
+New-Item -Path $au -Force | Out-Null
+Set-ItemProperty -Path $au -Name 'NoAutoUpdate' -Value 0 -Type DWord -Force
+Set-ItemProperty -Path $au -Name 'AUOptions' -Value 4 -Type DWord -Force
 
 Write-Host "Windows Updates configured" -ForegroundColor Green
 
@@ -79,7 +108,7 @@ $ProhibitedSoftware = @(
 )
 
 foreach ($software in $ProhibitedSoftware) {
-    Get-Package -Name $software -ErrorAction SilentlyContinue | Uninstall-Package -Force
+    Get-Package -Name $software -ErrorAction SilentlyContinue | Uninstall-Package -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host "Unauthorized software removal attempted" -ForegroundColor Green
@@ -115,7 +144,7 @@ auditpol /set /category:"System" /success:enable /failure:enable
 
 Write-Host "Audit policies enabled" -ForegroundColor Green
 
-# 8. DISABLE REMOTE DESKTOP (if not required)
+# 8. DISABLE REMOTE DESKTOP (skip this step if the README says RDP is required)
 Write-Host "`n[8/10] Configuring Remote Desktop..." -ForegroundColor Yellow
 
 Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 1
@@ -134,10 +163,11 @@ Write-Host "UAC enabled and configured" -ForegroundColor Green
 Write-Host "`n[10/10] Configuring Windows Defender..." -ForegroundColor Yellow
 
 Set-MpPreference -DisableRealtimeMonitoring $false
-Update-MpSignature
-Start-MpScan -ScanType QuickScan
+try { Update-MpSignature -ErrorAction Stop } catch { Write-Host "Signature update skipped (offline?)" -ForegroundColor DarkYellow }
+# Run the scan as a background job so the script does not wait for it
+Start-MpScan -ScanType QuickScan -AsJob | Out-Null
 
-Write-Host "Windows Defender configured and scanning" -ForegroundColor Green
+Write-Host "Windows Defender configured, quick scan started in the background" -ForegroundColor Green
 
 Write-Host "`n=== Quick Wins Script Completed ===" -ForegroundColor Cyan
 Write-Host "Check the scoring report for points!" -ForegroundColor Green
