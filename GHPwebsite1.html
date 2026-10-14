@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moulik Suhag - Computer Science Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --accent-dark: #0284c7;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--accent-color);
+        }
+
+        /* Main Container */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--accent-color);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+        }
+
+        /* Hero / About Section */
+        #about {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 70vh;
+        }
+
+        .about-content h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .about-content .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .about-content .bio {
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.9;
+        }
+
+        .bio p {
+            margin-bottom: 1.5rem;
+        }
+
+        .about-focus {
+            background-color: var(--secondary-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .about-focus li {
+            margin-bottom: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Projects Grid */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .project-card {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            background-color: #334155;
+            border-color: var(--accent-color);
+            transform: translateY(-4px);
+        }
+
+        .project-card h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .project-card p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--accent-color);
+        }
+
+        .details-link {
+            display: inline-block;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .details-link:hover {
+            color: var(--accent-dark);
+            text-decoration: underline;
+        }
+
+        /* Project Detail Sections */
+        .project-detail {
+            background-color: var(--secondary-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 2rem;
+            border-radius: 4px;
+            margin-bottom: 3rem;
+            scroll-margin-top: 100px;
+        }
+
+        .project-detail h3 {
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .project-detail h3:hover {
+            color: #fff;
+        }
+
+        .detail-row {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-row strong {
+            display: block;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-row p {
+            margin: 0;
+        }
+
+        /* Leadership Section */
+        .leadership-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .leadership-item {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .leadership-item h4 {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .leadership-item p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Impact / Achievements */
+        .achievements-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .achievement {
+            background-color: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--accent-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .achievement h4 {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement p {
+            font-size: 1rem;
+        }
+
+        /* PHOTO GALLERY STYLES */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            scroll-margin-top: 100px;
+        }
+
+        .gallery-img-wrapper {
+            aspect-ratio: 16/9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .gallery-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(56, 189, 248, 0.05);
+            color: var(--text-muted);
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .gallery-caption {
+            padding: 1.2rem;
+            border-top: 1px solid var(--border-color);
+            flex-grow: 1;
+        }
+
+        /* Web Links for Gallery */
+        .gallery-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-link:hover {
+            color: #fff;
+        }
+
+        .gallery-link .link-icon {
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-link:hover .link-icon {
+            transform: translate(2px, -2px); /* Makes the arrow pop up slightly on hover */
+        }
+
+        /* Contact Section */
+        #contact {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contact-content h2 {
+            margin-bottom: 2rem;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .contact-link:hover {
+            background-color: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .contact-info {
+            background-color: var(--secondary-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            margin-top: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .contact-info p {
+            margin: 1rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+            nav ul {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+            section {
+                padding: 3rem 0;
+            }
+            main {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Utility */
+        .accent {
+            color: var(--accent-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            z-index: 999;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--accent-dark);
+            transform: translateY(-4px);
+        }
+    </style>
+<style>/* Additional Custom Styles */
+.gradient-text {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+}
+
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Video mode: open the page with ?video=1 to hide school, hometown and personal photos */
+body.video-mode .school-info {
+    display: none !important;
+}</style></head>
+<body>
+    <script>if (/[?&]video/.test(location.search)) { document.body.classList.add('video-mode'); }</script>
+    <!-- Header & Navigation -->
+    <header>
+        <nav>
+            <div class="logo">MS</div>
+            <ul>
+                <li><a href="#about" class="nav-link active">About</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#leadership" class="nav-link">Leadership</a></li>
+                <li><a href="#impact" class="nav-link">Impact</a></li>
+                <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- About Section -->
+        <section id="about">
+            <div class="about-content">
+                <h1>Moulik Suhag</h1>
+                <p class="subtitle">Computer Science | Cybersecurity | Intelligent Systems</p>
+                <div class="bio">
+                    <p>Hi, I'm <strong>Moulik Suhag</strong>, a junior<span class="school-info"> at Lassiter High School</span> and a Georgia GHP Computer Science semifinalist.</p>
+                    <p>I'm passionate about building systems that solve real problems—from automating cybersecurity workflows and trading strategies to creating AI tools that help my classmates learn better. I combine technical depth with a focus on impact: whether it's securing systems under time pressure, designing satellites reviewed by the US Space Force and NASA, or scaling a startup's online presence, I think in terms of systems, users, and continuous improvement.</p>
+                    <div class="about-focus">
+                        <p><strong>My focus areas:</strong></p>
+                        <ul style="text-align: left; display: inline-block;">
+                            <li><strong>Cybersecurity & Systems:</strong> CyberPatriot, bash automation, Linux/Windows hardening.</li>
+                            <li><strong>Intelligent Automation & AI:</strong> Stock trading bots, API integration, LLM-based tools.</li>
+                            <li><strong>Applied Problem-Solving:</strong> Robotics (FRC), space systems (StellarXplorers national champions), web development.</li>
+                        </ul>
+                    </div>
+                    <p style="margin-top: 2rem;">I want to attend GHP to deepen my understanding of algorithms, AI, and secure system architecture so I can build more reliable, scalable tools and collaborate with other students who are equally passionate about computer science.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects">
+            <h2>Projects</h2>
+            <div class="project-grid">
+                <article class="project-card" onclick="smoothScroll('#project-trading')">
+                    <h3>Automated Stock Trading System</h3>
+                    <p>Intelligent trading bot using APIs to analyze stock data and execute buy/sell decisions automatically.</p>
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">APIs</span>
+                        <span class="tag">Automation</span>
+                    </div>
+                    <a href="#project-trading" class="details-link">View Details →</a>
+                </article>
+
+                <article class="project-card" onclick="smoothScroll('#project-cyberpatriot')">
+                    <h3>Automated Cybersecurity Framework</h3>
+                    <p>PowerShell and Bash scripts that harden Windows and Linux practice images for CyberPatriot.</p>
+                    <div class="tags">
+                        <span class="tag">Bash</span>
+                        <span class="tag">PowerShell</span>
+                        <span class="tag">Cybersecurity</span>
+                    </div>
+                    <a href="#project-cyberpatriot" class="details-link">View Details →</a>
+                </article>
+
+                <article class="project-card" onclick="smoothScroll('#project-ai-bots')">
+                    <h3>AI Classroom Helper Bots</h3>
+                    <p>LLM-powered tools to help classmates understand material in their own learning style.</p>
+                    <div class="tags">
+                        <span class="tag">LLM APIs</span>
+                        <span class="tag">Prompt Engineering</span>
+                        <span class="tag">EdTech</span>
+                    </div>
+                    <a href="#project-ai-bots" class="details-link">View Details →</a>
+                </article>
+
+                <article class="project-card" onclick="smoothScroll('#project-3d-printing')">
+                    <h3>3D Printing Startup Website</h3>
+                    <p>Professional web presence for a local 3D printing startup, driving traffic and sales growth.</p>
+                    <div class="tags">
+                        <span class="tag">HTML/CSS</span>
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">Web Design</span>
+                    </div>
+                    <a href="#project-3d-printing" class="details-link">View Details →</a>
+                </article>
+
+                <article class="project-card" onclick="smoothScroll('#project-frc')">
+                    <h3>FRC Robotics Programming</h3>
+                    <p>Lead Java programmer and Programming Director for tele-op and autonomous robot code.</p>
+                    <div class="tags">
+                        <span class="tag">Java</span>
+                        <span class="tag">Control Systems</span>
+                        <span class="tag">Leadership</span>
+                    </div>
+                    <a href="#project-frc" class="details-link">View Details →</a>
+                </article>
+
+                <article class="project-card" onclick="smoothScroll('#project-stellar')">
+                    <h3>StellarXplorers (National Champions)</h3>
+                    <p>Team Commander leading satellite design competition; design reviewed by US Space Force & NASA.</p>
+                    <div class="tags">
+                        <span class="tag">Systems Design</span>
+                        <span class="tag">Leadership</span>
+                        <span class="tag">Aerospace</span>
+                    </div>
+                    <a href="#project-stellar" class="details-link">View Details →</a>
+                </article>
+
+                <article class="project-card" onclick="smoothScroll('#project-keys4cannes')">
+                    <h3>Luxury Rental Website</h3>
+                    <p>Property rental website for Keys4Cannes, designed and deployed in two weeks.</p>
+                    <div class="tags">
+                        <span class="tag">WordPress</span>
+                        <span class="tag">HTML/CSS/JS</span>
+                        <span class="tag">Web Design</span>
+                    </div>
+                    <a href="#project-keys4cannes" class="details-link">View Details →</a>
+                </article>
+
+                <article class="project-card" onclick="smoothScroll('#project-nova')">
+                    <h3>NOVA Autonomous Vehicle Club</h3>
+                    <p>Founded a club building self-driving RC vehicles with cameras, LiDAR, and radar.</p>
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">ArduPilot</span>
+                        <span class="tag">Autonomy</span>
+                    </div>
+                    <a href="#project-nova" class="details-link">View Details →</a>
+                </article>
+            </div>
+
+            <!-- Project Details -->
+            <h2 style="margin-top: 4rem; margin-bottom: 2rem;">Project Details</h2>
+
+            <div class="project-detail" id="project-trading">
+                <h3 onclick="smoothScroll('#img-trading')" style="cursor: pointer; display: flex; align-items: center; gap: 10px;" title="Jump to Photo Gallery">
+                    Automated Stock Trading System 
+                    <span style="font-size: 1.2rem;" title="View Photo">🖼️</span>
+                </h3>
+                <div class="detail-row">
+                    <strong>Goal:</strong>
+                    <p>Reduce time spent manually monitoring markets during school by automating a rules-based trading strategy that executes trades autonomously and consistently.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Approach:</strong>
+                    <p>Built a system that uses market data APIs to pull real-time stock information, applies custom buy/sell logic based on technical indicators and market conditions, logs every trade decision, and executes transactions automatically. The bot runs on a schedule so you don't have to watch it constantly.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Tech Stack:</strong>
+                    <p>Python (or JavaScript), REST APIs (Perplexity, market data providers), task scheduling, data logging, risk management checks.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Impact:</strong>
+                    <p>Has generated <strong>over $400 in real profit</strong> and significantly reduced time spent managing trades during the school week. The system proves the value of combining data analysis with automated execution.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>What I Learned:</strong>
+                    <p>The importance of defensive programming (handling bad data, edge cases), risk management in any system, and the balance between automation and human oversight. This project taught me that reliable systems don't just work "most of the time"—they need careful design around failure modes.</p>
+                </div>
+            </div>
+
+            <div class="project-detail" id="project-cyberpatriot">
+                <h3 onclick="smoothScroll('#img-cyberpatriot')" style="cursor: pointer; display: flex; align-items: center; gap: 10px;" title="Jump to Photo Gallery">
+                    Automated Cybersecurity Framework for CyberPatriot
+                    <span style="font-size: 1.2rem;" title="View Photo">🖼️</span>
+                </h3>
+                <div class="detail-row">
+                    <strong>Context:</strong>
+                    <p>CyberPatriot is a nationwide Air Force Association-sponsored competition where students secure multiple virtual machines (Windows and Linux) in a 4-hour window under intense time pressure. Teams earn points for eliminating vulnerabilities and lose points for breaking functionality.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Goal:</strong>
+                    <p>Build PowerShell and Bash scripts that automate the repetitive baseline hardening work (password and lockout policy, firewall, services, audit logging, update settings, permissions) so our team can spend its time on the harder, image-specific vulnerabilities.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Tech Stack:</strong>
+                    <p>Bash, PowerShell, Linux PAM, UFW, sysctl, systemd, Windows security policy (secedit, auditpol), Windows Defender, VMware snapshots for testing, and Git/GitHub for version control.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Impact:</strong>
+                    <p>Our unit's team placed <strong>3rd in the state and 20th nationwide</strong>. The scripts speed up baseline security checks, improve consistency under time pressure, and reduce errors from manual repetition, turning a time-consuming manual process into a repeatable one.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Leadership:</strong>
+                    <p>As CyberPatriot Co-Commander, I also teach these security concepts to teammates and mentor them through vulnerability analysis, multiplying the impact beyond just my own code.</p>
+                </div>
+            </div>
+
+            <div class="project-detail" id="project-ai-bots">
+                <h3 onclick="smoothScroll('#img-ai')" style="cursor: pointer; display: flex; align-items: center; gap: 10px;" title="Jump to Photo Gallery">
+                    AI Classroom Helper Bots
+                    <span style="font-size: 1.2rem;" title="View Photo">🖼️</span>
+                </h3>
+                <div class="detail-row">
+                    <strong>Goal:</strong>
+                    <p>Help classmates understand difficult material by providing explanations tailored to how <em>they</em> learn best, and improve overall workflow efficiency in challenging courses.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Approach:</strong>
+                    <p>Built AI-powered bots that take class content (lecture notes, problem sets, textbook excerpts) and generate different types of explanations—conceptual overviews, step-by-step walkthroughs, analogy-based explanations, practice questions. Students can ask for the format that helps them most, rather than a one-size-fits-all explanation.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Tech Stack:</strong>
+                    <p>LLM APIs, prompt engineering (designing prompts to elicit different explanation styles), simple backend routing logic, usage logging.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Impact:</strong>
+                    <p>Improved understanding and learning efficiency for students who were struggling to keep up with the pace of advanced coursework. By matching explanation style to learning preference, students stay engaged and actually understand concepts rather than just memorizing.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>What I Learned:</strong>
+                    <p>The real power of AI isn't replacing humans—it's personalizing learning at scale. This project also taught me about prompt design, how small changes in how you ask an AI to respond dramatically change the output quality, and the importance of thinking about educational ethics and preventing misuse.</p>
+                </div>
+            </div>
+
+            <div class="project-detail" id="project-3d-printing">
+                <h3 onclick="smoothScroll('#img-3d')" style="cursor: pointer; display: flex; align-items: center; gap: 10px;" title="Jump to Photo Gallery">
+                    3D Printing Startup Website
+                    <span style="font-size: 1.2rem;" title="View Photo">🖼️</span>
+                </h3>
+                <div class="detail-row">
+                    <strong>Goal:</strong>
+                    <p>Build a professional, user-friendly online presence for a local 3D printing company to increase visibility, attract new customers, and drive sales.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Approach:</strong>
+                    <p>Designed and built a website showcasing services, portfolio, pricing, and an easy contact/ordering system. Focused on clear communication of what they offer, examples of past work, and removing friction from the customer journey.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Tech Stack:</strong>
+                    <p>HTML, CSS, JavaScript, responsive design for mobile and desktop, basic SEO optimization, analytics integration.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Impact:</strong>
+                    <p><strong>Increased sales by approximately 1.5× over two months</strong> by improving site traffic and making it easier for customers to understand and order services. The improved web presence directly translated to more business—measurable ROI from good design and UX.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>What I Learned:</strong>
+                    <p>Building for non-technical users is a different skill than building for developers. Understanding customer psychology, measuring what works (analytics), and iterating based on real feedback are as important as coding skill. This project showed me that a well-designed system serves people, not just functionality.</p>
+                </div>
+            </div>
+
+            <div class="project-detail" id="project-frc">
+                <h3 onclick="smoothScroll('#img-frc')" style="cursor: pointer; display: flex; align-items: center; gap: 10px;" title="Jump to Photo Gallery">
+                    FRC Robotics Programming Director
+                    <span style="font-size: 1.2rem;" title="View Photo">🖼️</span>
+                </h3>
+                <div class="detail-row">
+                    <strong>Role:</strong>
+                    <p>Lead Java programmer and Programming Director for the<span class="school-info"> Lassiter High School</span> FRC team, responsible for tele-op (remote control) and autonomous (pre-programmed) robot code.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Responsibilities:</strong>
+                    <p>Write and debug Java code for robot control, implement sensor feedback loops, optimize autonomous routines, mentor newer programmers on the team, and coordinate code development with mechanical and electrical teams.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Tech Stack:</strong>
+                    <p>Java, FRC WPILib libraries, control loops, PID tuning, sensor integration (encoders, gyroscopes, cameras), real-time debugging.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Impact:</strong>
+                    <p>Improved reliability and on-field performance of the robot by building robust code that handles edge cases, sensor noise, and time-critical execution. Mentored two FLL teams, scaling impact beyond just competition performance.</p>
+                </div>
+            </div>
+
+            <div class="project-detail" id="project-stellar">
+                <h3 onclick="smoothScroll('#img-stellar')" style="cursor: pointer; display: flex; align-items: center; gap: 10px;" title="Jump to Photo Gallery">
+                    StellarXplorers - National Champions
+                    <span style="font-size: 1.2rem;" title="View Photo">🖼️</span>
+                </h3>
+                <div class="detail-row">
+                    <strong>Role:</strong>
+                    <p>Team Commander and lead system designer for StellarXplorers, our school's aerospace engineering competition team.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Achievement:</strong>
+                    <p><strong>1st place in the nation</strong> with a satellite design that was reviewed by analysts from the US Space Force and NASA for potential and theoretical mission objectives—a rare honor indicating the design met real-world feasibility standards.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Challenge:</strong>
+                    <p>Design satellites under strict constraints—budget, mass, orbit, payload capability—while maximizing mission performance. Required systems thinking: balancing competing requirements, making trade-offs, and optimizing across multiple variables.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Impact:</strong>
+                    <p>Demonstrated the ability to lead a team through a complex engineering problem, think across multiple disciplines, and produce work that meets professional standards. The design review from Space Force and NASA validated not just the technical output but the approach.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>What I Learned:</strong>
+                    <p>Systems engineering requires seeing the whole picture—not just building individual components but understanding how they fit together. Leadership means breaking down big problems, organizing teams, and keeping everyone focused on the mission. This is exactly the mindset I apply to code: designing systems that are reliable, scalable, and serve a real purpose.</p>
+                </div>
+            </div>
+
+            <div class="project-detail" id="project-keys4cannes">
+                <h3>Luxury Rental Website (Keys4Cannes)</h3>
+                <div class="detail-row">
+                    <strong>Goal:</strong>
+                    <p>Give a luxury property rental company a premium online experience for high-end clients on the French Riviera.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Approach:</strong>
+                    <p>Designed and deployed the site within an accelerated two-week timeline (March to April 2026), combining WordPress with custom HTML, CSS, and JavaScript.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Tech Stack:</strong>
+                    <p>WordPress, HTML, CSS, JavaScript.</p>
+                </div>
+            </div>
+
+            <div class="project-detail" id="project-nova">
+                <h3>NOVA (Navigation Operations Vehicle Autonomy) Club</h3>
+                <div class="detail-row">
+                    <strong>Role:</strong>
+                    <p>Founder and lead of an autonomous coding club focused on self-driving RC vehicles (March 2026 to present).</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Approach:</strong>
+                    <p>Oversee hardware modifications using cameras, LiDAR, and radar sensors, and guide members in implementing pathfinding and obstacle-avoidance algorithms.</p>
+                </div>
+                <div class="detail-row">
+                    <strong>Tech Stack:</strong>
+                    <p>Python, ArduPilot, camera, LiDAR, and radar sensors.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leadership Section -->
+        <section id="leadership">
+            <h2>Leadership & Impact</h2>
+            <div class="leadership-grid">
+                <div class="leadership-item">
+                    <h4>CyberPatriot Co-Commander</h4>
+                    <p>Teaching Windows and Linux security, guiding vulnerability analysis, and leading our unit's team to 3rd in the state and 20th nationwide.</p>
+                </div>
+                <div class="leadership-item">
+                    <h4>StellarXplorers Team Commander</h4>
+                    <p>Led team to 1st place nationally with designs reviewed by US Space Force and NASA for mission feasibility—demonstrating systems thinking and leadership at scale.</p>
+                </div>
+                <div class="leadership-item">
+                    <h4>NJROTC Operations Officer</h4>
+                    <p>Third in command; managing events, logistics, accountability, and communication. Promoted to this rank as a sophomore—the first across three regional high schools—applying structured, systems-based thinking similar to software design.</p>
+                </div>
+                <div class="leadership-item">
+                    <h4>FRC Programming Director</h4>
+                    <p>Managing the software side of the robot, coordinating with mechanical and electrical teams, and mentoring newer programmers on robust code design.</p>
+                </div>
+                <div class="leadership-item">
+                    <h4>Academic Team Co-Captain</h4>
+                    <p>Leading problem-solving under time pressure, helping teammates approach difficult problems systematically, and representing school in regional/state competitions.</p>
+                </div>
+                <div class="leadership-item">
+                    <h4>BigFuture Ambassador</h4>
+                    <p>Sharing scholarships and academic opportunities with students in the community, helping demystify college prep and access to resources.</p>
+                </div>
+
+                <div class="leadership-item">
+                    <h4>Founder, NOVA Autonomous Vehicle Club</h4>
+                    <p>Leading an autonomous coding club building self-driving RC vehicles with cameras, LiDAR, and radar, using Python and ArduPilot.</p>
+                </div>
+                <div class="leadership-item">
+                    <h4>Founder, Computer Science Club</h4>
+                    <p>Started the club, connected it to FBLA for web design competitions, and worked with Hack Club to secure grants for the school and three 3D printers.</p>
+                </div>
+                <div class="leadership-item">
+                    <h4>11th Grade Class Representative</h4>
+                    <p>Elected to represent the class of 2028 and bring classmates' ideas for school improvements and events to school leaders.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Impact / Achievements Section -->
+        <section id="impact">
+            <h2>Key Achievements & Impact</h2>
+            <div class="achievements-list">
+                <div class="achievement">
+                    <h4>StellarXplorers</h4>
+                    <p><strong>1st place nationally</strong>; design reviewed by US Space Force and NASA.</p>
+                </div>
+                <div class="achievement">
+                    <h4>Trading Bot</h4>
+                    <p><strong>$400+ real profit</strong> generated; hours saved per week.</p>
+                </div>
+                <div class="achievement">
+                    <h4>3D Printing Website</h4>
+                    <p><strong>1.5× sales increase</strong> in 2 months through improved UX.</p>
+                </div>
+                <div class="achievement">
+                    <h4>CyberPatriot</h4>
+                    <p><strong>3rd in state, 20th nationwide</strong> (2026).</p>
+                </div>
+                <div class="achievement">
+                    <h4>AP Computer Science A</h4>
+                    <p><strong>Highest class average</strong>; deep core CS mastery.</p>
+                </div>
+                <div class="achievement">
+                    <h4>Math Tournament</h4>
+                    <p><strong>1st place school score</strong> (highest of all grades) and 33rd in state.</p>
+                </div>
+                <div class="achievement">
+                    <h4>NJROTC Cadet of the Year</h4>
+                    <p>2024-2025: recognized for leadership, intelligence, and excellence.</p>
+                </div>
+                <div class="achievement">
+                    <h4>CyberQuest Competitor</h4>
+                    <p><strong>3rd place</strong> at Lockheed Martin CyberQuest (2026).</p>
+                </div>
+
+                <div class="achievement">
+                    <h4>Academic Postal</h4>
+                    <p><strong>1st place nationwide</strong> (individual).</p>
+                </div>
+                <div class="achievement">
+                    <h4>Leadership Academy</h4>
+                    <p><strong>Top 3 of 300</strong> participants in a one-week program.</p>
+                </div>
+                <div class="achievement">
+                    <h4>Edward Jones Internship</h4>
+                    <p>Cybersecurity and financial software engineering intern (Apr to Aug 2026).</p>
+                </div>
+            </div>
+        </section>
+
+<!-- ✅ FIXED PHOTO GALLERY - relative image paths -->
+<section id="gallery">
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h2 style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;">Visual Portfolio</h2>
+        <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 1.1rem;">
+            Screenshots, leadership photos, and competition proof. All offline-ready for GHP interview.
+        </p>
+    </div>
+    
+    <div class="gallery-grid">
+        <!-- 1. TRADING BOT -->
+        <div class="gallery-item" id="img-trading">
+            <div class="gallery-img-wrapper">
+                <img src="Stock.png" alt="Trading Bot Dashboard" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="gallery-placeholder" style="display: none;">
+                    Trading Bot Dashboard<br><small>(Stock.png)</small>
+                </div>
+            </div>
+            <div class="gallery-caption">
+                <h4 style="margin-bottom: 0.5rem; color: var(--accent-color);">
+                    <a href="https://www.perplexity.ai/apps/bd94a357-f083-4b15-8cc9-ec7e46028024?asset_type=APP" target="_blank" class="gallery-link" style="color: var(--accent-color);">
+                        💹 Automated Stock Trading <span style="font-size: 0.9rem;">↗</span>
+                    </a>
+                </h4>
+                <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                    $400+ profit | Time-saving automation
+                </p>
+            </div>
+        </div>
+
+        <!-- 2. CYBERPATRIOT -->
+        <div class="gallery-item" id="img-cyberpatriot">
+            <div class="gallery-img-wrapper">
+                <img src="CyberPatriot.png" alt="CyberPatriot Tools" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="gallery-placeholder" style="display: none;">
+                    CyberPatriot Framework<br><small>(CyberPatriot.png)</small>
+                </div>
+            </div>
+            <div class="gallery-caption">
+                <h4 style="margin-bottom: 0.5rem; color: var(--accent-color);">
+                    <a href="https://github.com/Mflash777/Cyberpatriot-BashCommands/blob/main/README.md" target="_blank" class="gallery-link">
+                        🛡️ CyberPatriot Framework <span style="font-size: 0.9rem;">↗</span>
+                    </a>
+                </h4>
+                <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                    Bash automation | Top rankings year 1
+                </p>
+            </div>
+        </div>
+
+        <!-- 3. AI BOTS -->
+        <div class="gallery-item" id="img-ai">
+            <div class="gallery-img-wrapper">
+                <img src="Aibot.png" alt="AI Classroom Tools" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="gallery-placeholder" style="display: none;">
+                    AI Classroom Bots<br><small>(Aibot.png)</small>
+                </div>
+            </div>
+            <div class="gallery-caption">
+                <h4 style="margin-bottom: 0.5rem; color: var(--accent-color);">
+                    <a href="https://gemini.google.com/share/612cab21749b" target="_blank" class="gallery-link">
+                        🤖 AI Classroom Helper Bots <span style="font-size: 0.9rem;">↗</span>
+                    </a>
+                </h4>
+                <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                    Personalized learning tools
+                </p>
+            </div>
+        </div>
+
+        <!-- 4. 3D PRINTING SITE -->
+        <div class="gallery-item" id="img-3d">
+            <div class="gallery-img-wrapper">
+                <img src="3dpritns.png" alt="3D Printing Website" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="gallery-placeholder" style="display: none;">
+                    3D Printing Website<br><small>(3dpritns.png)</small>
+                </div>
+            </div>
+            <div class="gallery-caption">
+                <h4 style="margin-bottom: 0.5rem; color: var(--accent-color);">
+                    <a href="https://parkers3dprints.com/blogs/news" target="_blank" class="gallery-link">
+                        🖨️ 3D Printing Startup Site <span style="font-size: 0.9rem;">↗</span>
+                    </a>
+                </h4>
+                <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                    1.5x sales growth in 2 months
+                </p>
+            </div>
+        </div>
+
+        <!-- 5. FRC ROBOTICS -->
+        <div class="gallery-item" id="img-frc">
+            <div class="gallery-img-wrapper">
+                <img src="FRC%20robotics.png" alt="FRC Robot Code" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="gallery-placeholder" style="display: none;">
+                    FRC Robot<br><small>(FRC robotics.png)</small>
+                </div>
+            </div>
+            <div class="gallery-caption">
+                <h4 style="margin-bottom: 0.5rem; color: var(--accent-color);">
+                    <a href="" target="_blank" class="gallery-link">
+                        ⚙️ FRC Programming Director <span style="font-size: 0.9rem;">↗</span>
+                    </a>
+                </h4>
+                <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                    Lead Java programmer | Autonomous code
+                </p>
+            </div>
+        </div>
+
+        <!-- 6. STELLARXPLORERS -->
+        <div class="gallery-item" id="img-stellar">
+            <div class="gallery-img-wrapper">
+                <img src="STELLARXPLORERS.png" alt="StellarXplorers Design" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="gallery-placeholder" style="display: none;">
+                    StellarXplorers<br><small>(STELLARXPLORERS.png)</small>
+                </div>
+            </div>
+            <div class="gallery-caption">
+                <h4 style="margin-bottom: 0.5rem; color: var(--accent-color);">
+                    <a href="" target="_blank" class="gallery-link">
+                        🛰️ StellarXplorers Champs <span style="font-size: 0.9rem;">↗</span>
+                    </a>
+                </h4>
+                <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                    #1 Nationally | Space Force/NASA reviewed
+                </p>
+            </div>
+        </div>
+
+        <!-- 7. NJROTC OFFICER -->
+        <div class="gallery-item school-info" id="img-leadership">
+            <div class="gallery-img-wrapper">
+                <img src="njrotc.png" alt="NJROTC Operations Officer" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="gallery-placeholder" style="display: none;">
+                    NJROTC Officer<br><small>(njrotc.png)</small>
+                </div>
+            </div>
+            <div class="gallery-caption">
+                <h4 style="margin-bottom: 0.5rem; color: var(--accent-color);">
+                    <a href="" target="_blank" class="gallery-link">
+                        ⚓ NJROTC Operations Officer <span style="font-size: 0.9rem;">↗</span>
+                    </a>
+                </h4>
+                <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                    1st sophomore promoted (3 schools)
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ✅ GALLERY END -->
+
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <div class="contact-content">
+                <h2>Let's Connect</h2>
+                <p>I'm always interested in talking about cybersecurity, robotics, intelligent systems, and using AI to make school and work more efficient.</p>
+                <div class="contact-links">
+                    <a href="mailto:mk.sg210@gmail.com" class="contact-link">Email</a>
+                    <a href="https://github.com/Mflash777" class="contact-link">GitHub</a>
+                    <a href="https://youtu.be/KeEeLuxqrPM" class="contact-link">GHP Video</a>
+                </div>
+                <div class="contact-info">
+                    <p><strong>Moulik Suhag</strong></p>
+                    <p>Junior<span class="school-info">, Lassiter High School</span></p>
+                    <p class="school-info">Marietta, Georgia</p>
+                    <p>📧 mk.sg210@gmail.com</p>
+                    <p>🐙 <a href="https://github.com/Mflash777" style="color: var(--accent-color);">github.com/Mflash777</a></p>
+                    <p style="margin-top: 2rem; font-size: 0.95rem; color: var(--text-muted);"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop" onclick="smoothScroll('body')">↑</div>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scrolling
+        function smoothScroll(target) {
+            const element = document.querySelector(target);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Navigation link active state
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Show back-to-top button
+            const backToTop = document.getElementById('backToTop');
+            if (scrollY > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        // Prevent default link behavior for smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = this.getAttribute('href');
+                smoothScroll(target);
+            });
+        });
+    </script>
+<script>// Enhanced JavaScript with modern features
+console.log('🚀 Beautiful website loaded successfully!');
+
+// Smooth scrolling for anchor links
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scroll behavior
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add intersection observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all feature cards and stats
+    const animatedElements = document.querySelectorAll('.feature-card, .stat-item');
+    animatedElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+});
+
+// Add CSS for sparkle animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes sparkle {
+        0% { transform: scale(0) rotate(0deg); opacity: 1; }
+        50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
+        100% { transform: scale(0) rotate(360deg); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);</script></body>
+</html>
